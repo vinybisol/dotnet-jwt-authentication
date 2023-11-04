@@ -1,4 +1,4 @@
-using dotnet_jwt_authentication.Services;
+using dotnet_jwt_authentication.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +8,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddServices();
 
-builder.Services.AddTransient<TokenService>();
+
+
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseQueryStrings = true;
+    options.LowercaseUrls = true;
+});
 
 var app = builder.Build();
 
@@ -25,7 +32,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapGet("/", (TokenService service) => service.TokenGenerate(null));
 
 app.Run();

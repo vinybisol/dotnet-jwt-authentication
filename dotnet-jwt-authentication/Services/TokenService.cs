@@ -1,11 +1,19 @@
 ﻿using dotnet_jwt_authentication.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace dotnet_jwt_authentication.Services;
 
-public class TokenService
+
+public interface ITokenService
+{
+    string TokenGenerate(User user);
+}
+
+
+public class TokenService : ITokenService
 {
     public string TokenGenerate(User user) 
     {
@@ -19,11 +27,23 @@ public class TokenService
         {
             SigningCredentials = credentials,
             Expires = DateTime.UtcNow.AddHours(2),
+            Subject = GenerateClaims(user),
         };
 
         var token = handler.CreateToken(tokenDescriptor);
 
         var strToken = handler.WriteToken(token);
         return strToken;
+    }
+
+    private static ClaimsIdentity GenerateClaims(User user)
+    {
+        var claimsIdentity = new ClaimsIdentity();
+        claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, user.Email));
+
+        foreach (var role in user.Roles)
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
+
+        return claimsIdentity;
     }
 }
