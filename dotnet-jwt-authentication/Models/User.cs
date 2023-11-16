@@ -1,17 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace dotnet_jwt_authentication.Models;
 
-namespace dotnet_jwt_authentication.Models;
-
-public record User
+public class User()
 {
-    public Guid Id { get; init; }
-
-    [EmailAddress]
-    public string Email { get; init; } = string.Empty;
-
-    [StringLength(30, MinimumLength = 10)]
-    public string Password { get; init; } = string.Empty;   
-    
-    public string[] Roles { get; init; } = Array.Empty<string>();
-};
-
+    public Guid Id { get; init; } = Guid.Empty;
+    public required string Name { get; init; }
+    public required string Email { get; init; }
+    public required string Password { get; init; }
+    public string[] Roles { get; init; } = ["Admin"];
+}

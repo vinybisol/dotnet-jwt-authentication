@@ -1,5 +1,6 @@
-﻿using dotnet_jwt_authentication.Models;
-using dotnet_jwt_authentication.Services;
+﻿using dotnet_jwt_authentication.Controllers.Requests;
+using dotnet_jwt_authentication.Data;
+using dotnet_jwt_authentication.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_jwt_authentication.Controllers.Auth
@@ -7,19 +8,26 @@ namespace dotnet_jwt_authentication.Controllers.Auth
     [ApiController]
     [Route("[controller]")]
 
-    public class AuthController : ControllerBase
+    public class AuthController(UserContext userContext) : ControllerBase
     {
-        private readonly ITokenService _tokenService;
-
-        public AuthController(ITokenService tokenService) => _tokenService = tokenService;
+        private readonly UserContext _userContext = userContext;
 
         [HttpPost]
-        [Route(nameof(Login))]
-        public IActionResult Login([FromBody]User user)
+        [Route(nameof(CreateAsync))]
+        public async Task<IActionResult> CreateAsync([FromBody] CreateUserRequest userRequest)
         {
-            var token = _tokenService.TokenGenerate(user);
-            return Ok(token);
-        }
+            User user = new()
+            {
+                Name = userRequest.Name,
+                Email = userRequest.Email,
+                Password = userRequest.Password
+            };
 
+            await _userContext.Users.AddAsync(user);
+
+            await _userContext.SaveChangesAsync();
+
+            return Ok("User created");
+        }
     }
 }
